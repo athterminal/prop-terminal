@@ -180,6 +180,7 @@ app.get('/api/history', async (req, res) => {
   }catch(err){
     res.status(500).json({ s:'error', error: err.message });
   }
+});
 
 // get all orders (open, pending, closed)
 app.get('/api/orders', async (req, res) => {
@@ -190,6 +191,7 @@ app.get('/api/orders', async (req, res) => {
     return { ...o, currentPrice: price, unrealizedPnl: +upnl.toFixed(8) };
   });
   res.json(enriched);
+});
 
 // place order
 app.post('/api/order', async (req, res) => {
@@ -229,6 +231,7 @@ app.post('/api/order', async (req, res) => {
   }catch(e){
     res.status(500).json({ error: e.message });
   }
+});
 
 // close position
 app.post('/api/close', async (req, res) => {
@@ -238,44 +241,81 @@ app.post('/api/close', async (req, res) => {
     if(idx === -1) return res.status(404).json({ error: 'not found' });
     const o = orders[idx];
     if(o.status !== 'open') return res.status(400).json({ error: 'position not open' });
+    const price = latestPrices[o.symbol];
+    if(!price) return res.status(400).json({ error: 'price not available' });
+    await closePosition(o, price, 'manual');
+    res.json({ ok:true, order:o });
+  }catch(e){
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// account
+app.get('/api/account', async (req, res) => {
+  const acc = await safeReadJSON(ACCOUNT_FILE, account);
+  // refresh unrealized PnL and equity
+  let unreal = 0;
+  for(const o of orders){
+    if(o.status === 'open' && latestPrices[o.symbol]) unreal += unrealizedPnl(o, latestPrices[o.symbol]);
+  }
+  acc.equity = +(acc.balance + unreal).toFixed(8);
+  acc.usedMargin = calcUsedMargin();
+  res.json(acc);
+});
+
+// add symbol (test)
+app.post('/api/add-symbol', async (req,res) => {
+  const { symbol } = req.body;
+  if(symbol) trackedSymbols.add(symbol.toUpperCase());
+  res.json({ok:true});
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('Server running on:');
+  console.log(`- Local:    http://localhost:${PORT}`);
+  const os = require('os');
+  const nets = os.networkInterfaces();
+  for(const name of Object.keys(nets)){
+    for(const net of nets[name]){
+      if(net.family === 'IPv4' && !net.internal){
+        console.log(`- Network:  http://${net.address}:${PORT}`);
+      }
+    }
+  }
+});
 
 // === Live price stream (Binance WebSocket) ===
 const { WebSocket } = require("ws");
+  const ws = new WebSocket('wss://stream.binance.com:9443/ws/!ticker@arr');
 
-const ws = new WebSocket("wss://stream.binance.com:9443/ws/!ticker@arr");
-
-ws.on("open", () => console.log("[Binance WS] Connected"));
-ws.on("message", data => {
-  try {
-    const tickers = JSON.parse(data);
-    for (const t of tickers) {
-      const s = t.s;
-      if (trackedSymbols.has(s)) {
-        latestPrices[s] = parseFloat(t.c);
+  ws.on('open', () => console.log('[Binance WS] Connected'));
+  ws.on('message', data => {
+    try {
+      const tickers = JSON.parse(data);
+      for (const t of tickers) {
+        const s = t.s;
+        if (trackedSymbols.has(s)) {
+          latestPrices[s] = parseFloat(t.c);
+        }
       }
+    } catch (e) {
+      console.error('[Binance WS] parse error', e.message);
     }
-  } catch (e) {
-    console.error("[Binance WS] parse error", e.message);
-  }
+  });
+  ws.on('close', () => console.log('[Binance WS] Disconnected'));
+  ws.on('error', err => console.error('[Binance WS] Error:', err.message));
 });
-ws.on("close", () => console.log("[Binance WS] Disconnected"));
-ws.on("error", err => console.error("[Binance WS] Error:", err.message));
 
-// API endpoint for current prices
-app.get("/api/prices", (req, res) => {
+// Endpoint to get current prices
+app.get('/api/prices', (req, res) => {
   res.json(latestPrices);
 });
 
-// periodic trades.json save
+// periodic write to trades.json (for persistence demo)
 setInterval(async () => {
   try {
     await safeWriteJSON(TRADES_FILE, orders);
   } catch (e) {
-    console.error("write error", e.message);
+    console.error('write error', e.message);
   }
 }, 60000);
-
-// start server
-app.listen(PORT, () => {
-  console.log(`Server running on:\n- Local:    http://localhost:${PORT}`);
-});
