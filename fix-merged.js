@@ -1,3 +1,5 @@
+/* eslint-env browser, es2021 */
+/* eslint-env browser */
 /* eslint-env browser */
 /* fix-timezone.js — merged version: sync timezone + correct TradingView-style labels */
 
