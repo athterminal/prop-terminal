@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Prop Terminal — Demo</title>
+<script src="https://unpkg.com/lightweight-charts@4.0.1/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+:root{--bg:#0b0f14;--panel:#0d1117;--panel2:#0f1418;--muted:#9aa0a6;--text:#d1d4dc;--accent:#2ea46d;--danger:#e25959;--hover:rgba(255,255,255,0.04)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif}
+.app{display:flex;flex-direction:column;height:100vh;min-height:0}
+.workspace{display:flex;flex:1;min-height:0}
+#chart-container{flex:1;display:flex;flex-direction:column;min-width:0;padding:12px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:transparent}
+.tf-group{display:flex;gap:8px}
+.tf-btn{padding:6px 10px;border-radius:8px;background:transparent;border:0;color:var(--text);cursor:pointer;opacity:0.95}
+.tf-btn:hover{background:var(--hover)}
+.tf-btn.active{background:var(--panel2);color:#fff}
+#chart{flex:1;border-radius:6px;overflow:hidden;background:var(--panel)}
+.chart-footer{height:36px;background:var(--panel);border-top:1px solid #1a2127;display:flex;align-items:center;justify-content:space-between;padding:0 12px}
+#utc-display{padding:6px 10px;border-radius:6px;background:transparent;border:0;color:var(--text);cursor:pointer}
+#right{width:360px;background:var(--panel2);border-left:1px solid #1a2127;display:flex;flex-direction:column;min-width:260px;max-width:420px}
+#right .header{padding:10px;border-bottom:1px solid #1a2127;display:flex;gap:8px}
+#search{flex:1;background:#0e1117;border:1px solid #252930;padding:8px 10px;border-radius:8px;color:var(--text)}
+#inst-list{overflow:auto;flex:1;padding-bottom:8px}
+.inst-row{display:flex;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #1a2127;cursor:pointer}
+.inst-row:hover{background:#151920}.inst-row.active{background:var(--panel)}
+.trade-panel{padding:12px;border-top:1px solid var(--panel2);background:var(--panel)}
+.mode-buttons{display:flex;gap:8px;margin-bottom:10px}
+.mode-btn{flex:1;padding:8px;border-radius:8px;border:0;background:transparent;color:var(--text);cursor:pointer}
+.mode-btn:hover{background:var(--hover)}
+.mode-btn.active{background:var(--panel);color:#fff}
+.form-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.label{width:90px;color:var(--muted);font-size:13px}
+.form-field{flex:1;padding:8px;border-radius:6px;border:1px solid #252930;background:#0e1117;color:var(--text)}
+.checkbox{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.action-row{display:flex;gap:8px}
+.buy{background:var(--accent);color:#fff;border:0;border-radius:6px;padding:10px 12px;cursor:pointer;flex:1}
+.sell{background:var(--danger);color:#fff;border:0;border-radius:6px;padding:10px 12px;cursor:pointer;flex:1}
+.bottom-area{height:260px;display:flex;flex-direction:column;border-top:1px solid var(--panel);background:var(--panel)}
+.bottom-tabs{display:flex;gap:8px;padding:8px;align-items:center}
+.tab{padding:8px 12px;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.tab.active{background:var(--panel2);color:#fff}
+.positions-wrap{flex:1;padding:12px;overflow:auto}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:8px 6px;border-bottom:1px solid #1a2127;font-size:13px;color:var(--text);text-align:left}
+.small{font-size:13px;color:var(--muted)}
+.tooltip {position:absolute;left:12px;bottom:46px;background:#0d1117;border:1px solid #222;border-radius:6px;padding:6px 8px;color:#fff;font-size:13px;pointer-events:none}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="workspace">
+    <div id="chart-container">
+      <div class="topbar">
+        <div class="tf-group" id="tf-group">
+          <button class="tf-btn active" data-interval="1m">1m</button>
+          <button class="tf-btn" data-interval="5m">5m</button>
+          <button class="tf-btn" data-interval="15m">15m</button>
+          <button class="tf-btn" data-interval="1h">1h</button>
+          <button class="tf-btn" data-interval="4h">4h</button>
+          <button class="tf-btn" data-interval="1d">1d</button>
+          <button class="tf-btn" data-interval="1w">1w</button>
+          <button class="tf-btn" data-interval="1M">1M</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button id="fullscreen-btn" title="Fullscreen">⤢</button>
+        </div>
+      </div>
+
+      <div id="chart" style="position:relative"></div>
+      <div class="chart-footer">
+        <div id="hover-info" class="small">—</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div id="utc-display">--:--:-- UTC+0</div>
+        </div>
+      </div>
+      <div id="hover-tooltip" class="tooltip hidden"></div>
+    </div>
+
+    <div id="right">
+      <div class="header">
+        <input id="search" placeholder="Search instruments..." />
+      </div>
+
+      <div id="inst-list"></div>
+
+      <div class="trade-panel" id="trade-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div id="sel-instrument" style="font-weight:700">BTCUSDT</div>
+          <div class="small" id="acc-balance">Balance: 100000</div>
+        </div>
+
+        <div class="mode-buttons">
+          <button class="mode-btn active" id="mode-market">Market</button>
+          <button class="mode-btn" id="mode-limit">Limit</button>
+          <button class="mode-btn" id="mode-stop">Stop</button>
+        </div>
+
+        <div id="trade-form">
+          <div class="form-row">
+            <div class="label">Volume</div>
+            <input id="order-volume" class="form-field" type="number" step="0.0001" value="0.1" />
+          </div>
+
+          <div class="form-row" id="price-row" style="display:none">
+            <div class="label">Price</div>
+            <input id="order-price" class="form-field" type="number" step="0.0001" />
+          </div>
+
+          <div class="form-row">
+            <div class="label"></div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <label class="checkbox"><input id="enable-sl" type="checkbox" /> Stop Loss</label>
+              <input id="order-sl" class="form-field" type="number" step="0.0001" disabled />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="label"></div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <label class="checkbox"><input id="enable-tp" type="checkbox" /> Take Profit</label>
+              <input id="order-tp" class="form-field" type="number" step="0.0001" disabled />
+            </div>
+          </div>
+
+          <div class="action-row" style="margin-top:10px">
+            <button class="sell" id="btn-sell">Sell</button>
+            <button class="buy" id="btn-buy">Buy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-area">
+    <div class="bottom-tabs">
+      <div id="tab-positions" class="tab active">Positions</div>
+      <div id="tab-pending" class="tab">Pending</div>
+      <div id="tab-closed" class="tab">Closed</div>
+      <div style="flex:1"></div>
+      <div class="small" id="acc-info">Equity: 100000</div>
+    </div>
+    <div class="positions-wrap" id="positions-wrap"></div>
+  </div>
+</div>
+
+<script>
+/* ------------------- Chart init ------------------- */
+const chartEl = document.getElementById('chart');
+const chart = LightweightCharts.createChart(chartEl, {
+  layout: { background: { color: '#0b0f14' }, textColor: '#d1d4dc' },
+  grid: { vertLines: { color: '#1a1f25' }, horzLines: { color: '#1a1f25' } },
+  crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+  timeScale: { timeVisible: true, secondsVisible: false }
+});
+const candleSeries = chart.addCandlestickSeries();
+let candlesData = [];
+let lastCandle = null;
+
+/* state */
+let currentInterval = '1m';
+let currentSymbol = 'BTCUSDT';
+let ws = null;
+let balance = Number(localStorage.getItem('pt_balance') || 100000);
+let orders = JSON.parse(localStorage.getItem('pt_orders') || '[]'); // includes open/pending/closed
+let timezoneOffsetMinutes = 0; // 0 => UTC+0
+let tzLabel = 'UTC+0';
+
+/* helper formatting */
+const weekdays=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const months=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+function fmtTime(tsSec, interval, offsetMin=0){
+  const d = new Date((tsSec + offsetMin*60)*1000);
+  const dayName = weekdays[d.getUTCDay()];
+  const day = String(d.getUTCDate()).padStart(2,'0');
+  const month = months[d.getUTCMonth()];
+  const year = d.getUTCFullYear();
+  const hh = String(d.getUTCHours()).padStart(2,'0');
+  const mm = String(d.getUTCMinutes()).padStart(2,'0');
+  if(interval === '1M'){
+    const first = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
+    return `${weekdays[first.getUTCDay()]} 01 ${months[first.getUTCMonth()]} ${first.getUTCFullYear()}`;
+  }
+  if(interval === '1w'){
+    const dd=new Date((tsSec+offsetMin*60)*1000);
+    const dow=dd.getUTCDay();
+    const monday=new Date(dd);
+    monday.setUTCDate(dd.getUTCDate()-((dow+6)%7));
+    return `${weekdays[monday.getUTCDay()]} ${String(monday.getUTCDate()).padStart(2,'0')} ${months[monday.getUTCMonth()]} ${monday.getUTCFullYear()}`;
+  }
+  if(interval === '1d') return `${dayName} ${day} ${month} ${year}`;
+  return `${dayName} ${day} ${month} ${year} ${hh}:${mm}`;
+}
+
+/* ------------------- UTC display + selector ------------------- */
+const utcDisplay = document.getElementById('utc-display');
+function updateUtc(){
+  const now = new Date();
+  const t = new Date(now.getTime() + timezoneOffsetMinutes*60000);
+  const hh = String(t.getUTCHours()).padStart(2,'0');
+  const mm = String(t.getUTCMinutes()).padStart(2,'0');
+  const ss = String(t.getUTCSeconds()).padStart(2,'0');
+  utcDisplay.textContent = `${hh}:${mm}:${ss} ${tzLabel}`;
+}
+setInterval(updateUtc,1000);
+updateUtc();
+utcDisplay.addEventListener('click', ()=>{
+  const opts = ['UTC-5 (NY)','UTC+0 (GMT)','UTC+1 (Madrid)','UTC+2 (Helsinki)','UTC+3 (Istanbul)','UTC+8 (Beijing)'];
+  const sel = prompt('Выберите часовой пояс:\\n0: UTC-5 (NY)\\n1: UTC+0 (GMT)\\n2: UTC+1 (Madrid)\\n3: UTC+2 (Helsinki)\\n4: UTC+3 (Istanbul)\\n5: UTC+8 (Beijing)','1');
+  const i = Number(sel);
+  if(isNaN(i) || i<0 || i>5) return;
+  const offsets = [-300,0,60,120,180,480];
+  const labels = ['UTC-5','UTC+0','UTC+1','UTC+2','UTC+3','UTC+8'];
+  timezoneOffsetMinutes = offsets[i];
+  tzLabel = labels[i];
+});
+
+/* ------------------- load initial candles (Binance public) ------------------- */
+async function loadInitial(symbol=currentSymbol, interval=currentInterval, limit=500){
+  try{
+    const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+    const res = await fetch(url);
+    const raw = await res.json();
+    candlesData = raw.map(c=>({ time: Math.floor(c[0]/1000), open:+c[1], high:+c[2], low:+c[3], close:+c[4] }));
+    candleSeries.setData(candlesData);
+    if(candlesData.length) lastCandle = candlesData[candlesData.length-1];
+  }catch(e){ console.warn('loadInitial error', e); }
+}
+loadInitial();
+
+/* ------------------- live websocket (Binance) ------------------- */
+function connectLive(symbol=currentSymbol, interval=currentInterval){
+  if(ws) ws.close();
+  const stream = `${symbol.toLowerCase()}@kline_${interval}`;
+  const url = `wss://stream.binance.com:9443/ws/${stream}`;
+  try{
+    ws = new WebSocket(url);
+  }catch(e){ console.warn(e); return; }
+  ws.onmessage = (ev)=>{
+    const msg = JSON.parse(ev.data);
+    if(!msg.k) return;
+    const k = msg.k;
+    const c = { time: Math.floor(k.t/1000), open:+k.o, high:+k.h, low:+k.l, close:+k.c };
+    if(!lastCandle || c.time > lastCandle.time){
+      lastCandle = c;
+      candleSeries.update(c);
+      // also push to buffer
+      candlesData.push(c);
+      if(candlesData.length>2000) candlesData.shift();
+    } else {
+      lastCandle.high = Math.max(lastCandle.high, c.close);
+      lastCandle.low = Math.min(lastCandle.low, c.close);
+      lastCandle.close = c.close;
+      candleSeries.update(lastCandle);
+      candlesData[candlesData.length-1] = lastCandle;
+    }
+    // check SL/TP triggers
+    checkSlTp();
+    renderPositions();
+  };
+  ws.onclose = ()=> setTimeout(()=>connectLive(symbol, interval), 2000);
+}
+connectLive();
+
+/* ------------------- TF switching ------------------- */
+document.querySelectorAll('.tf-btn').forEach(btn=>{
+  btn.addEventListener('click', async ()=>{
+    document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentInterval = btn.dataset.interval;
+    await loadInitial(currentSymbol, currentInterval);
+    if(ws) ws.close();
+    connectLive(currentSymbol, currentInterval);
+  });
+});
+
+/* ------------------- instruments list ------------------- */
+const instruments = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT'];
+const instList = document.getElementById('inst-list');
+function renderInstList(filter=''){
+  instList.innerHTML='';
+  instruments.filter(s=>s.toLowerCase().includes(filter.toLowerCase())).forEach(sym=>{
+    const row = document.createElement('div');
+    row.className='inst-row';
+    row.innerHTML = '<div>'+sym+'</div><div class="small">—</div>';
+    row.addEventListener('click', async ()=>{
+      document.querySelectorAll('.inst-row').forEach(r=>r.classList.remove('active'));
+      row.classList.add('active');
+      currentSymbol = sym;
+      document.getElementById('sel-instrument').textContent = sym;
+      await loadInitial(currentSymbol, currentInterval);
+      if(ws) ws.close();
+      connectLive(currentSymbol, currentInterval);
+      refreshAll();
+    });
+    instList.appendChild(row);
+  });
+}
+renderInstList('');
+document.getElementById('search').addEventListener('input',(e)=>renderInstList(e.target.value));
+
+/* ------------------- trading UI logic ------------------- */
+const modeMarket = document.getElementById('mode-market');
+const modeLimit = document.getElementById('mode-limit');
+const modeStop = document.getElementById('mode-stop');
+const priceRow = document.getElementById('price-row');
+const volEl = document.getElementById('order-volume');
+const priceEl = document.getElementById('order-price');
+const enableSl = document.getElementById('enable-sl');
+const slEl = document.getElementById('order-sl');
+const enableTp = document.getElementById('enable-tp');
+const tpEl = document.getElementById('order-tp');
+const btnBuy = document.getElementById('btn-buy');
+const btnSell = document.getElementById('btn-sell');
+
+let uiMode = 'market';
+function setMode(m){
+  uiMode = m;
+  [modeMarket,modeLimit,modeStop].forEach(b=>b.classList.remove('active'));
+  if(m==='market') modeMarket.classList.add('active');
+  if(m==='limit') modeLimit.classList.add('active');
+  if(m==='stop') modeStop.classList.add('active');
+  priceRow.style.display = (m==='market') ? 'none' : 'flex';
+}
+modeMarket.addEventListener('click', ()=>setMode('market'));
+modeLimit.addEventListener('click', ()=>setMode('limit'));
+modeStop.addEventListener('click', ()=>setMode('stop'));
+
+enableSl.addEventListener('change', ()=> slEl.disabled = !enableSl.checked);
+enableTp.addEventListener('change', ()=> tpEl.disabled = !enableTp.checked);
+
+/* orders management (localStorage) */
+function saveState(){ localStorage.setItem('pt_orders', JSON.stringify(orders)); localStorage.setItem('pt_balance', String(balance)); }
+function createOrder(side){
+  const order = {
+    id: 'o'+Date.now(),
+    symbol: currentSymbol,
+    side,
+    type: uiMode,
+    volume: Number(volEl.value) || 0,
+    price: (uiMode==='market'? null : (priceEl.value? Number(priceEl.value): null)),
+    sl: enableSl.checked? (slEl.value? Number(slEl.value): null): null,
+    tp: enableTp.checked? (tpEl.value? Number(tpEl.value): null): null,
+    status: (uiMode==='market' ? 'open' : 'pending'),
+    entryPrice: null,
+    createdAt: Date.now(),
+    pnl: 0
+  };
+  if(order.type === 'market'){
+    // immediate fill at lastCandle.close
+    const fill = lastCandle ? lastCandle.close : null;
+    order.entryPrice = fill;
+    order.status = 'open';
+    order.entryTime = Date.now();
+  }
+  orders.push(order);
+  saveState();
+  renderPositions();
+}
+btnBuy.addEventListener('click', ()=> createOrder('buy'));
+btnSell.addEventListener('click', ()=> createOrder('sell'));
+
+/* compute unrealized pnl and check SL/TP */
+function checkSlTp(){
+  const nowPrice = lastCandle ? lastCandle.close : null;
+  orders.forEach(o=>{
+    if(o.status==='open' && nowPrice!=null){
+      const dir = o.side === 'buy' ? 1 : -1;
+      const entry = o.entryPrice || nowPrice;
+      o.unrealizedPnl = (nowPrice - entry) * dir * o.volume;
+      // simple trigger
+      if(o.sl && ((o.side==='buy' && nowPrice <= o.sl) || (o.side==='sell' && nowPrice >= o.sl))){
+        closeOrder(o, nowPrice, 'sl');
+      }
+      if(o.tp && ((o.side==='buy' && nowPrice >= o.tp) || (o.side==='sell' && nowPrice <= o.tp))){
+        closeOrder(o, nowPrice, 'tp');
+      }
+    }
+    if(o.status==='pending' && o.price != null && nowPrice != null){
+      // if market reaches limit/stop, fill
+      if(o.type==='limit'){
+        if((o.side==='buy' && nowPrice <= o.price) || (o.side==='sell' && nowPrice >= o.price)){
+          o.entryPrice = o.price; o.status='open'; o.entryTime=Date.now();
+        }
+      }
+      if(o.type==='stop'){
+        if((o.side==='buy' && nowPrice >= o.price) || (o.side==='sell' && nowPrice <= o.price)){
+          o.entryPrice = nowPrice; o.status='open'; o.entryTime=Date.now();
+        }
+      }
+    }
+  });
+  saveState();
+}
+
+/* close order */
+function closeOrder(o, price, reason='manual'){
+  o.closePrice = price;
+  o.closeTime = Date.now();
+  const dir = o.side === 'buy' ? 1 : -1;
+  const entry = o.entryPrice || price;
+  o.pnl = (price - entry) * dir * o.volume;
+  o.status = 'closed';
+  // update balance
+  balance += o.pnl;
+  saveState();
+}
+
+/* render positions / tables */
+const positionsWrap = document.getElementById('positions-wrap');
+let activeBottomTab = 'positions';
+document.getElementById('tab-positions').addEventListener('click', ()=>{ activeBottomTab='positions'; renderPositions(); });
+document.getElementById('tab-pending').addEventListener('click', ()=>{ activeBottomTab='pending'; renderPositions(); });
+document.getElementById('tab-closed').addEventListener('click', ()=>{ activeBottomTab='closed'; renderPositions(); });
+
+function renderPositions(){
+  document.getElementById('acc-balance').textContent = 'Balance: '+balance.toFixed(2);
+  document.getElementById('acc-info').textContent = 'Equity: '+(balance + computeUnrealized()).toFixed(2);
+  positionsWrap.innerHTML = '';
+  if(activeBottomTab==='positions'){
+    const open = orders.filter(o=>o.status==='open');
+    if(open.length===0) { positionsWrap.innerHTML = '<div class="small">No open positions</div>'; return; }
+    const table = document.createElement('table'); table.className='table';
+    const thead = document.createElement('thead'); thead.innerHTML = '<tr><th>Instrument</th><th>Side</th><th>Vol</th><th>Entry</th><th>SL</th><th>TP</th><th>Unreal</th><th>Action</th></tr>';
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    open.forEach(o=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${o.symbol}</td><td>${o.side.toUpperCase()}</td><td>${o.volume}</td><td>${o.entryPrice?Number(o.entryPrice).toFixed(6):'—'}</td><td>${o.sl||'—'}</td><td>${o.tp||'—'}</td><td style="color:${(o.unrealizedPnl||0)>=0? '#58d68d':'#ff7b7b'}">${(o.unrealizedPnl||0).toFixed(2)}</td><td><button data-id="${o.id}" class="close-btn">Close</button></td>`;
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    positionsWrap.appendChild(table);
+    positionsWrap.querySelectorAll('.close-btn').forEach(b=> b.addEventListener('click', async ()=>{ const id=b.dataset.id; const o=orders.find(x=>x.id===id); if(o){ closeOrder(o, lastCandle ? lastCandle.close : (o.entryPrice||0)); renderPositions(); } }));
+  } else if(activeBottomTab==='pending'){
+    const pending = orders.filter(o=>o.status==='pending');
+    if(pending.length===0){ positionsWrap.innerHTML = '<div class="small">No pending orders</div>'; return; }
+    const table = document.createElement('table'); table.className='table';
+    const thead = document.createElement('thead'); thead.innerHTML = '<tr><th>Instrument</th><th>Side</th><th>Vol</th><th>Price</th><th>SL</th><th>TP</th><th>Action</th></tr>';
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    pending.forEach(o=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${o.symbol}</td><td>${o.side.toUpperCase()}</td><td>${o.volume}</td><td>${o.price||'—'}</td><td>${o.sl||'—'}</td><td>${o.tp||'—'}</td><td><button data-id="${o.id}" class="cancel-btn">Cancel</button></td>`;
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    positionsWrap.appendChild(table);
+    positionsWrap.querySelectorAll('.cancel-btn').forEach(b=> b.addEventListener('click', ()=>{ const id=b.dataset.id; orders = orders.filter(x=>x.id!==id); saveState(); renderPositions(); }));
+  } else {
+    const closed = orders.filter(o=>o.status==='closed');
+    if(closed.length===0){ positionsWrap.innerHTML = '<div class="small">No closed positions</div>'; return; }
+    const table = document.createElement('table'); table.className='table';
+    const thead = document.createElement('thead'); thead.innerHTML = '<tr><th>Instrument</th><th>Side</th><th>Vol</th><th>Entry</th><th>Exit</th><th>PnL</th></tr>';
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    closed.forEach(o=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${o.symbol}</td><td>${o.side.toUpperCase()}</td><td>${o.volume}</td><td>${o.entryPrice?Number(o.entryPrice).toFixed(6):'—'}</td><td>${o.closePrice?Number(o.closePrice).toFixed(6):'—'}</td><td style="color:${o.pnl>=0? '#58d68d':'#ff7b7b'}">${o.pnl?Number(o.pnl).toFixed(2):'0.00'}</td>`;
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    positionsWrap.appendChild(table);
+  }
+}
+
+/* compute total unrealized */
+function computeUnrealized(){
+  let sum = 0;
+  orders.forEach(o=>{ if(o.status==='open') sum += (o.unrealizedPnl||0); });
+  return sum;
+}
+
+/* refresh all UI */
+function refreshAll(){ checkSlTp(); renderPositions(); document.getElementById('acc-balance').textContent = 'Balance: '+balance.toFixed(2); document.getElementById('acc-info').textContent = 'Equity: '+(balance + computeUnrealized()).toFixed(2); }
+setInterval(refreshAll,1500);
+refreshAll();
+
+/* ------------------- Fullscreen handling ------------------- */
+let isFull = false;
+document.getElementById('fullscreen-btn').addEventListener('click', ()=>{
+  const chartCont = document.getElementById('chart-container');
+  const right = document.getElementById('right');
+  const bottom = document.querySelector('.bottom-area');
+  isFull = !isFull;
+  if(isFull){ right.style.display='none'; bottom.style.display='none'; chartCont.style.padding='0'; document.getElementById('fullscreen-btn').textContent='⤡'; }
+  else { right.style.display='flex'; bottom.style.display='flex'; chartCont.style.padding='12px'; document.getElementById('fullscreen-btn').textContent='⤢'; }
+  setTimeout(()=>chart.resize(chartEl.clientWidth, chartEl.clientHeight),120);
+});
+
+/* ------------------- Hover / tooltip including future time estimate ------------------- */
+const hoverInfo = document.getElementById('hover-info');
+const hoverTooltip = document.getElementById('hover-tooltip');
+
+chart.subscribeCrosshairMove((param)=>{
+  if(!param || !param.time) {
+    // mouse outside candles area — estimate future time based on logical mapping
+    const ts = estimateTimeAtX(param);
+    if(ts){ hoverInfo.textContent = fmtTime(Math.floor(ts), currentInterval, timezoneOffsetMinutes); showTooltipAt(param); return; }
+    hoverInfo.textContent = '—';
+    hoverTooltip.classList.add('hidden');
+    return;
+  }
+  const t = typeof param.time === 'object' && param.time.time ? param.time.time : param.time;
+  hoverInfo.textContent = fmtTime(Math.floor(t), currentInterval, timezoneOffsetMinutes);
+  showTooltipAt(param);
+});
+
+function showTooltipAt(param){
+  if(!param || !param.point) { hoverTooltip.classList.add('hidden'); return; }
+  const price = param.seriesPrices && param.seriesPrices.get(candleSeries) ? param.seriesPrices.get(candleSeries).close : (lastCandle? lastCandle.close : null);
+  if(price==null){ hoverTooltip.classList.add('hidden'); return; }
+  hoverTooltip.classList.remove('hidden');
+  hoverTooltip.textContent = `O: ${price.toFixed(2)}`;
+  const rect = chartEl.getBoundingClientRect();
+  let left = (param.point.x + rect.left + 8);
+  let top = (param.point.y + rect.top - 40);
+  // keep inside
+  if(left + hoverTooltip.offsetWidth > window.innerWidth - 10) left = window.innerWidth - hoverTooltip.offsetWidth - 10;
+  if(top < 10) top = 10;
+  hoverTooltip.style.left = left + 'px';
+  hoverTooltip.style.top = top + 'px';
+}
+
+/* estimate time for future area when crosshair.time is null */
+function estimateTimeAtX(param){
+  try{
+    if(!candlesData || candlesData.length < 2) return null;
+    const tsFirst = candlesData[0].time;
+    const tsLast = candlesData[candlesData.length-1].time;
+    const n = candlesData.length;
+    const avgSec = (tsLast - tsFirst) / (n - 1);
+    const rect = chartEl.getBoundingClientRect();
+    if(!param || !param.point) return null;
+    const x = param.point.x;
+    const width = rect.width;
+    const vis = chart.timeScale().getVisibleLogicalRange();
+    if(!vis) return null;
+    const logicalFrom = vis.from;
+    const logicalTo = vis.to;
+    const logical = logicalFrom + (x / width) * (logicalTo - logicalFrom);
+    const estIndex = logical; // approximate index from 0
+    const estTime = Math.floor(tsFirst + estIndex * avgSec);
+    return estTime;
+  }catch(e){ return null; }
+}
+
+/* ------------------- simple keyboard shortcuts ------------------- */
+window.addEventListener('keydown',(e)=>{
+  if(e.key === 'f'){ document.getElementById('fullscreen-btn').click(); }
+});
+
+/* expose for debug */
+window._pt = { orders, balance, refreshAll, connectLive, loadInitial };
+
+/* init render */
+renderPositions();
+</script>
+</body>
+</html>
+<script src="./fixes.js"></script>
+<script src="./fix-timezone.js"></script>
+<script src="./fix-hover-time.js"></script>
+<script src="/fix-orders-panel.js"></script>
+<script src="/live-prices.js"></script>
+<script src="./live-prices-sync.js"></script>
+<div id="orders-panel" class="orders-panel">
+  <div class="orders-tabs">
+    <button class="tab-btn active" data-tab="positions">Positions</button>
+    <button class="tab-btn" data-tab="pending">Pending</button>
+    <button class="tab-btn" data-tab="closed">Closed</button>
+  </div>
+
+  <div class="tab-content active" id="positions-tab">
+    <table class="orders-table positions-table">
+      <thead>
+        <tr>
+          <th>Symbol</th><th>Type</th><th>Side</th><th>Vol</th><th>Entry</th><th>Current</th><th>P&amp;L ($)</th><th>Date Open</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="positions-body"></tbody>
+    </table>
+  </div>
+
+  <div class="tab-content" id="pending-tab">
+    <table class="orders-table pending-table">
+      <thead>
+        <tr>
+          <th>Symbol</th><th>Type</th><th>Side</th><th>Vol</th><th>Entry</th><th>Current</th><th>Date Open</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="pending-body"></tbody>
+    </table>
+  </div>
+
+  <div class="tab-content" id="closed-tab">
+    <table class="orders-table closed-table">
+      <thead>
+        <tr>
+          <th>Symbol</th><th>Type</th><th>Side</th><th>Vol</th><th>Entry</th><th>Exit</th><th>P&amp;L ($)</th><th>Date Open</th><th>Date Close</th>
+        </tr>
+      </thead>
+      <tbody id="closed-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
+    document.getElementById(btn.dataset.tab + "-tab").classList.add("active");
+  });
+});
+</script>
+

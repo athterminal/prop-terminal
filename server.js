@@ -1,0 +1,285 @@
+/**
+ * server.js — Express + demo CFD engine (improved)
+ * - persistent orders in trades.json
+ * - account in account.json
+ * - engine executes pending/SL/TP and updates balance/equity
+ */
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs').promises;
+const path = require('path');
+require('dotenv').config();
+
+const fetch = (...args) => import('node-fetch').then(m => m.default(...args));
+
+const PORT = process.env.PORT || 3000;
+const DATA_DIR = path.resolve(__dirname);
+const TRADES_FILE = path.join(DATA_DIR, 'trades.json');
+const ACCOUNT_FILE = path.join(DATA_DIR, 'account.json');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use('/', express.static('client'));
+
+async function safeReadJSON(file, fallback){
+  try { const s = await fs.readFile(file, 'utf8'); return JSON.parse(s); }
+  catch(e){ return fallback; }
+}
+async function safeWriteJSON(file, data){
+  const tmp = file + '.tmp';
+  await fs.writeFile(tmp, JSON.stringify(data, null, 2), 'utf8');
+  await fs.rename(tmp, file);
+}
+
+// ensure files exist
+(async ()=>{
+  try { await fs.access(TRADES_FILE); } catch(e){ await safeWriteJSON(TRADES_FILE, []); }
+  try { await fs.access(ACCOUNT_FILE); } catch(e){ await safeWriteJSON(ACCOUNT_FILE, { balance: 10000, equity: 10000, usedMargin: 0 }); }
+})();
+
+let orders = [];
+let account = { balance: 10000, equity: 10000, usedMargin: 0 };
+let latestPrices = {};
+let trackedSymbols = new Set(['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT']);
+
+// load initial state
+(async ()=>{
+  orders = await safeReadJSON(TRADES_FILE, []);
+  account = await safeReadJSON(ACCOUNT_FILE, account);
+  for(const o of orders) if(o.symbol) trackedSymbols.add(o.symbol);
+})();
+
+// Helper calculations
+function calcUsedMargin(){
+  let used = 0;
+  for(const o of orders){
+    if(o.status === 'open' && o.requiredMargin) used += o.requiredMargin;
+  }
+  return used;
+}
+function unrealizedPnl(order, price){
+  if(!order.entryPrice || order.status !== 'open') return 0;
+  const dir = order.side === 'buy' ? 1 : -1;
+  const delta = (price - order.entryPrice) * dir;
+  return delta * order.volume;
+}
+
+// save state
+async function persist(){
+  try{
+    await safeWriteJSON(TRADES_FILE, orders);
+    await safeWriteJSON(ACCOUNT_FILE, account);
+  }catch(e){
+    console.warn('persist err', e);
+  }
+}
+
+// --- Price poller (Binance REST, every 2s) ---
+async function fetchPrices(){
+  const syms = Array.from(trackedSymbols);
+  for(const s of syms){
+    try{
+      const r = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${s}`);
+      if(!r.ok) continue;
+      const d = await r.json();
+      latestPrices[s] = parseFloat(d.price);
+    }catch(e){}
+  }
+}
+setInterval(fetchPrices, 2000);
+fetchPrices();
+
+// --- Order engine ---
+function executeMarket(order, price, time){
+  order.entryPrice = price;
+  order.entryTime = time || Date.now();
+  order.status = 'open';
+  const lev = order.leverage || 1;
+  order.requiredMargin = (order.entryPrice * order.volume) / lev;
+  account.usedMargin = calcUsedMargin();
+}
+
+function tryOpenPending(order, price){
+  if(!price) return false;
+  if(order.type === 'limit'){
+    if(order.side === 'buy' && price <= order.price){ executeMarket(order, order.price, Date.now()); return true; }
+    if(order.side === 'sell' && price >= order.price){ executeMarket(order, order.price, Date.now()); return true; }
+  } else if(order.type === 'stop'){
+    if(order.side === 'buy' && price >= order.price){ executeMarket(order, price, Date.now()); return true; }
+    if(order.side === 'sell' && price <= order.price){ executeMarket(order, price, Date.now()); return true; }
+  }
+  return false;
+}
+
+async function closePosition(order, price, reason='manual'){
+  if(!order || order.status !== 'open') return false;
+  order.closePrice = price;
+  order.closeTime = Date.now();
+  order.status = 'closed';
+  order.closeReason = reason;
+  const pnl = unrealizedPnl(order, price);
+  order.pnl = +pnl.toFixed(8);
+  account.balance = +(account.balance + pnl).toFixed(8);
+  account.usedMargin = calcUsedMargin();
+  account.equity = account.balance; // after close, unrealized removed
+  await persist();
+  return true;
+}
+
+async function engineStep(){
+  // open pending
+  for(const o of orders.filter(x => x.status === 'pending')){
+    const price = latestPrices[o.symbol];
+    if(!price) continue;
+    // keep price comparison tolerant
+    tryOpenPending(o, price);
+  }
+
+  // check SL / TP for open orders
+  for(const o of orders.filter(x => x.status === 'open')){
+    const price = latestPrices[o.symbol];
+    if(!price) continue;
+    // Stop loss
+    if(o.sl){
+      if(o.side === 'buy' && price <= o.sl){ await closePosition(o, price, 'sl'); continue; }
+      if(o.side === 'sell' && price >= o.sl){ await closePosition(o, price, 'sl'); continue; }
+    }
+    // Take profit
+    if(o.tp){
+      if(o.side === 'buy' && price >= o.tp){ await closePosition(o, price, 'tp'); continue; }
+      if(o.side === 'sell' && price <= o.tp){ await closePosition(o, price, 'tp'); continue; }
+    }
+  }
+
+  // update equity with unrealized PnL
+  let unreal = 0;
+  for(const o of orders){
+    if(o.status === 'open' && latestPrices[o.symbol]) unreal += unrealizedPnl(o, latestPrices[o.symbol]);
+  }
+  account.usedMargin = calcUsedMargin();
+  account.equity = +(account.balance + unreal).toFixed(8);
+  await persist();
+}
+setInterval(engineStep, 2000);
+
+// ========== API ==========
+
+// Proxy history to Binance klines
+app.get('/api/history', async (req, res) => {
+  try{
+    const symbol = (req.query.symbol || 'BTCUSDT').toUpperCase();
+    const interval = req.query.interval || '1m';
+    const limit = req.query.limit || 500;
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
+    const data = await r.json();
+    if(!Array.isArray(data)) return res.status(500).json({ s:'error', error:data });
+    const candles = data.map(c => ({ time: Math.floor(c[0]/1000), open:+c[1], high:+c[2], low:+c[3], close:+c[4] }));
+    trackedSymbols.add(symbol);
+    res.json({ s:'ok', candles });
+  }catch(err){
+    res.status(500).json({ s:'error', error: err.message });
+  }
+});
+
+// get all orders (open, pending, closed)
+app.get('/api/orders', async (req, res) => {
+  const data = await safeReadJSON(TRADES_FILE, []);
+  const enriched = data.map(o => {
+    const price = latestPrices[o.symbol] || null;
+    const upnl = (o.status === 'open' && price) ? unrealizedPnl(o, price) : 0;
+    return { ...o, currentPrice: price, unrealizedPnl: +upnl.toFixed(8) };
+  });
+  res.json(enriched);
+});
+
+// place order
+app.post('/api/order', async (req, res) => {
+  try{
+    const body = req.body;
+    const { symbol, side, type, volume } = body;
+    if(!symbol || !side || !type || !volume) return res.status(400).json({ error: 'missing fields' });
+
+    const id = 'o_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+    const order = {
+      id,
+      symbol: symbol.toUpperCase(),
+      side: side.toLowerCase(),
+      type: type.toLowerCase(), // market, limit, stop
+      volume: parseFloat(volume),
+      sl: body.sl ? parseFloat(body.sl) : null,
+      tp: body.tp ? parseFloat(body.tp) : null,
+      leverage: body.leverage ? parseFloat(body.leverage) : 1,
+      status: 'pending',
+      createdAt: Date.now()
+    };
+
+    const current = latestPrices[order.symbol] || null;
+    if(order.type === 'market'){
+      if(!current) return res.status(400).json({ error: 'price not available' });
+      executeMarket(order, current, Date.now());
+    } else {
+      order.price = body.price ? parseFloat(body.price) : null;
+      if(!order.price) return res.status(400).json({ error: 'price required for limit/stop' });
+      order.status = 'pending';
+    }
+
+    orders.push(order);
+    trackedSymbols.add(order.symbol);
+    await persist();
+    res.json({ ok:true, order });
+  }catch(e){
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// close position
+app.post('/api/close', async (req, res) => {
+  try{
+    const { id } = req.body;
+    const idx = orders.findIndex(o => o.id === id);
+    if(idx === -1) return res.status(404).json({ error: 'not found' });
+    const o = orders[idx];
+    if(o.status !== 'open') return res.status(400).json({ error: 'position not open' });
+    const price = latestPrices[o.symbol];
+    if(!price) return res.status(400).json({ error: 'price not available' });
+    await closePosition(o, price, 'manual');
+    res.json({ ok:true, order:o });
+  }catch(e){
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// account
+app.get('/api/account', async (req, res) => {
+  const acc = await safeReadJSON(ACCOUNT_FILE, account);
+  // refresh unrealized PnL and equity
+  let unreal = 0;
+  for(const o of orders){
+    if(o.status === 'open' && latestPrices[o.symbol]) unreal += unrealizedPnl(o, latestPrices[o.symbol]);
+  }
+  acc.equity = +(acc.balance + unreal).toFixed(8);
+  acc.usedMargin = calcUsedMargin();
+  res.json(acc);
+});
+
+// add symbol (test)
+app.post('/api/add-symbol', async (req,res) => {
+  const { symbol } = req.body;
+  if(symbol) trackedSymbols.add(symbol.toUpperCase());
+  res.json({ok:true});
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('Server running on:');
+  console.log(`- Local:    http://localhost:${PORT}`);
+  const os = require('os');
+  const nets = os.networkInterfaces();
+  for(const name of Object.keys(nets)){
+    for(const net of nets[name]){
+      if(net.family === 'IPv4' && !net.internal){
+        console.log(`- Network:  http://${net.address}:${PORT}`);
+      }
+    }
+  }
+});

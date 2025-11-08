@@ -1,0 +1,25 @@
+# node
+node_modules/
+npm-debug.log
+# lockfile (optional: можно закоммитить, но обычно — игнорируем)
+package-lock.json
+
+# env / secrets
+.env
+*.env
+account.json
+account.json.bak
+trades.json
+*.key
+*.pem
+
+# build / temp
+dist/
+tmp/
+tmp_*
+*.log
+.vscode/
+.DS_Store
+
+# editor swaps
+*.swp

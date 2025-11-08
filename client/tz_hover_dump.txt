@@ -1,0 +1,258 @@
+./fix-timezone.backup_1762464733.js:3:  const btn = document.getElementById('utc-button');
+./fix-timezone.backup_1762464733.js:45:      timezoneOffsetMinutes = z.offset * 60;
+./fix-timezone.backup_1762464733.js:56:  window.timezoneOffsetMinutes = 0;
+./fix-timezone.backup_1762464733.js:60:    const shifted = new Date(now.getTime() + timezoneOffsetMinutes * 60000);
+./index.html:22:#utc-button{background:transparent;border:0;color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer}#utc-button:hover{background:var(--hover)}
+./index.html:67:        <button id="utc-button">--:--:-- UTC+0</button>
+./index.html:358:<script src="fix-hover-time-2.js"></script>
+./index.html.restore_point_1762464365:22:#utc-button{background:transparent;border:0;color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer}#utc-button:hover{background:var(--hover)}
+./index.html.restore_point_1762464365:67:        <button id="utc-button">--:--:-- UTC+0</button>
+./index.html.restore_point_1762464365:172:const utcBtn = document.getElementById('utc-button');
+./fix-hover-time-2.js:1:// fix-hover-time-2.js — перемещена и стилизована как TradingView footer label
+./fix-hover-time-2.js:7:        console.warn('fix-hover-time-2: chart not found');
+./fix-hover-time-2.js:12:      document.querySelectorAll('.tv-hover-time-v5,.tv-hover-time-v4,.tv-hover-time-v2').forEach(e => e.remove());
+./fix-hover-time-2.js:16:      hover.className = 'tv-hover-time-final';
+./fix-hover-time-2.js:40:        const d = new Date((tsSec + (window.timezoneOffsetMinutes || 0) * 60) * 1000);
+./fix-hover-time-2.js:55:          const t = timeScale().coordinateToTime && timeScale().coordinateToTime(x);
+./fix-hover-time-2.js:85:          console.error('fix-hover-time-2 error', err);
+./fix-hover-time-2.js:91:      console.info('✅ fix-hover-time-2 (TradingView position & style) active');
+./fix-hover-time-2.js:93:      console.error('fix-hover-time-2 failed', e);
+./index.html.bak_dropdown_old:22:#utc-button{background:transparent;border:0;color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer}#utc-button:hover{background:var(--hover)}
+./index.html.bak_dropdown_old:67:        <button id="utc-button">--:--:-- UTC+0</button>
+./index.html.bak_dropdown_old:172:const utcBtn = document.getElementById('utc-button');
+./index.html.bak_tz_static:22:#utc-button{background:transparent;border:0;color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer}#utc-button:hover{background:var(--hover)}
+./index.html.bak_tz_static:67:        <button id="utc-button">--:--:-- UTC+0</button>
+./index.html.bak_tz_static:172:const utcBtn = document.getElementById('utc-button');
+./fix-timezone.js:3:  const btn = document.getElementById('utc-button');
+./fix-timezone.js:45:      timezoneOffsetMinutes = z.offset * 60;
+./fix-timezone.js:56:  window.timezoneOffsetMinutes = 0;
+./fix-timezone.js:60:    const shifted = new Date(now.getTime() + timezoneOffsetMinutes * 60000);
+./tz_files.txt:7:./fix-hover-time.js
+./index.html.backup_before_orderfix:22:#utc-button{background:transparent;border:0;color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer}#utc-button:hover{background:var(--hover)}
+./index.html.backup_before_orderfix:67:        <button id="utc-button">--:--:-- UTC+0</button>
+./index.html.bak_step1:22:#utc-button{background:transparent;border:0;color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer}#utc-button:hover{background:var(--hover)}
+./index.html.bak_step1:67:        <button id="utc-button">--:--:-- UTC+0</button>
+./index.html.bak_step1:172:const utcBtn = document.getElementById('utc-button');
+./index.html.bak:22:#utc-button{background:transparent;border:0;color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer}#utc-button:hover{background:var(--hover)}
+./index.html.bak:67:        <button id="utc-button">--:--:-- UTC+0</button>
+./index.html.bak:172:const utcBtn = document.getElementById('utc-button');
+./index.html.backup_ui:22:#utc-button{background:transparent;border:0;color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer}#utc-button:hover{background:var(--hover)}
+./index.html.backup_ui:67:        <button id="utc-button">--:--:-- UTC+0</button>
+./index.html.backup_ui:172:const utcBtn = document.getElementById('utc-button');
+./index.html.backup_orders:169:let timezoneOffsetMinutes = 0; // 0 => UTC+0
+./index.html.backup_orders:202:  const t = new Date(now.getTime() + timezoneOffsetMinutes*60000);
+./index.html.backup_orders:217:  timezoneOffsetMinutes = offsets[i];
+./index.html.backup_orders:502:    if(ts){ hoverInfo.textContent = fmtTime(Math.floor(ts), currentInterval, timezoneOffsetMinutes); showTooltipAt(param); return; }
+./index.html.backup_orders:508:  hoverInfo.textContent = fmtTime(Math.floor(t), currentInterval, timezoneOffsetMinutes);
+./index.html.backup_orders:566:<script src="./fix-hover-time.js"></script>
+./index.html.backup_before_remove_leverage:22:#utc-button{background:transparent;border:0;color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer}#utc-button:hover{background:var(--hover)}
+./index.html.backup_before_remove_leverage:67:        <button id="utc-button">--:--:-- UTC+0</button>
+./index.html.backup_1762464733:22:#utc-button{background:transparent;border:0;color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer}#utc-button:hover{background:var(--hover)}
+./index.html.backup_1762464733:67:        <button id="utc-button">--:--:-- UTC+0</button>
+./index.html.backup_3panels:169:let timezoneOffsetMinutes = 0; // 0 => UTC+0
+./index.html.backup_3panels:202:  const t = new Date(now.getTime() + timezoneOffsetMinutes*60000);
+./index.html.backup_3panels:217:  timezoneOffsetMinutes = offsets[i];
+./index.html.backup_3panels:502:    if(ts){ hoverInfo.textContent = fmtTime(Math.floor(ts), currentInterval, timezoneOffsetMinutes); showTooltipAt(param); return; }
+./index.html.backup_3panels:508:  hoverInfo.textContent = fmtTime(Math.floor(t), currentInterval, timezoneOffsetMinutes);
+./index.html.backup_3panels:566:<script src="./fix-hover-time.js"></script>
+--- index.html tail ---
+  const year = d.getUTCFullYear();
+  const hh = String(d.getUTCHours()).padStart(2,'0');
+  const mm = String(d.getUTCMinutes()).padStart(2,'0');
+  if(tf === '1M'){ const first = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)); return `${weekdays[first.getUTCDay()]} 01 ${months[first.getUTCMonth()]} ${first.getUTCFullYear()}`; }
+  if(tf === '1w'){ const dd = new Date((tsSec + offsetMinutes*60)*1000); const dow = dd.getUTCDay(); const monday = new Date(dd); monday.setUTCDate(dd.getUTCDate() - ((dow + 6) % 7)); return `${weekdays[monday.getUTCDay()]} ${String(monday.getUTCDate()).padStart(2,'0')} ${months[monday.getUTCMonth()]} ${monday.getUTCFullYear()}`; }
+  if(tf === '1d') return `${dayName} ${day} ${month} ${year}`;
+  return `${dayName} ${day} ${month} ${year} ${hh}:${mm}`;
+}
+chart.applyOptions({ localization: { timeFormatter: (t)=>formatCandleTime(t, currentInterval) }, timeScale:{ timeVisible:true, secondsVisible:false }});
+function updateTimeFormatter(){ chart.applyOptions({ localization: { timeFormatter: (t)=>formatCandleTime(t, currentInterval) } }); }
+async function loadKlines(symbol=currentSymbol, interval=currentInterval){
+  try{
+    const res = await fetch(`/api/history?symbol=${symbol}&interval=${interval}&limit=600`);
+    const data = await res.json();
+    if(data.s === 'ok') {
+      candleSeries.setData(data.candles);
+    } else {
+      console.warn('kline error', data);
+    }
+  }catch(e){ console.warn(e); }
+}
+loadKlines();
+
+/* ---------- TF buttons ---------- */
+const tfBtns = document.querySelectorAll('.tf-btn');
+tfBtns.forEach(btn=>{
+  if(btn.dataset.interval === currentInterval) btn.classList.add('active');
+  btn.addEventListener('click', async ()=>{
+    currentInterval = btn.dataset.interval;
+    tfBtns.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    await loadKlines(currentSymbol, currentInterval);
+    chart.applyOptions({ timeScale: { timeVisible:true, secondsVisible: currentInterval === '1m' }});
+    updateTimeFormatter();
+  });
+});
+
+/* ---------- fullscreen ---------- */
+const fsBtn = document.getElementById('fullscreen-btn');
+let isFull=false;
+fsBtn.addEventListener('click', ()=> {
+  isFull = !isFull;
+  const chartWrap = document.getElementById('chart-wrap');
+  const right = document.getElementById('right');
+  const positions = document.getElementById('positions');
+  if(isFull){ chartWrap.classList.add('chart-fullscreen'); right.style.display='none'; positions.style.display='none'; fsBtn.textContent='⤡'; }
+  else { chartWrap.classList.remove('chart-fullscreen'); right.style.display='flex'; positions.style.display='block'; fsBtn.textContent='⤢'; }
+  setTimeout(()=>chart.resize(chartContainer.clientWidth, chartContainer.clientHeight),120);
+});
+window.addEventListener('resize', ()=> setTimeout(()=>chart.resize(chartContainer.clientWidth, chartContainer.clientHeight),50));
+
+/* ---------- instruments list & search ---------- */
+const instruments = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT'];
+const instListEl = document.getElementById('inst-list');
+const searchEl = document.getElementById('search');
+const selInstrumentEl = document.getElementById('sel-instrument');
+
+function renderInstList(filter=''){
+  instListEl.innerHTML='';
+  const arr = instruments.filter(s => s.toLowerCase().includes(filter.toLowerCase()));
+  arr.forEach(sym=>{
+    const row = document.createElement('div');
+    row.className='inst-row';
+    row.dataset.sym = sym;
+    row.innerHTML = `<div>${sym}</div><div class="price">—</div>`;
+    row.addEventListener('click', async()=>{
+      document.querySelectorAll('.inst-row').forEach(r=>r.classList.remove('active'));
+      row.classList.add('active');
+      currentSymbol = sym;
+      selInstrumentEl.textContent = sym;
+      await loadKlines(currentSymbol, currentInterval);
+    });
+    instListEl.appendChild(row);
+  });
+}
+renderInstList('');
+searchEl.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') renderInstList(searchEl.value.trim()); });
+searchEl.addEventListener('input', ()=> renderInstList(searchEl.value.trim()));
+
+/* update prices in instrument list */
+async function refreshPrices(){
+  document.querySelectorAll('.inst-row').forEach(async row=>{
+    const sym = row.dataset.sym;
+    try{
+      const res = await fetch(`/api/history?symbol=${sym}&interval=1m&limit=1`);
+      const d = await res.json();
+      if(d.s === 'ok' && d.candles && d.candles.length) {
+        const last = d.candles[d.candles.length-1];
+        row.querySelector('.price').textContent = last.close.toFixed(2);
+        latestPrices[sym] = last.close;
+      }
+    }catch(e){}
+  });
+}
+refreshPrices(); setInterval(refreshPrices, 8000);
+
+/* ---------- TRADE FORM logic (calls server APIs) ---------- */
+const typeEl = document.getElementById('order-type');
+const volEl = document.getElementById('order-volume');
+const priceEl = document.getElementById('order-price');
+const slEl = document.getElementById('order-sl');
+const tpEl = document.getElementById('order-tp');
+const levEl = document.getElementById('order-lev');
+const btnBuy = document.getElementById('btn-buy');
+const btnSell = document.getElementById('btn-sell');
+const priceRow = document.getElementById('price-row');
+
+typeEl.addEventListener('change', ()=> {
+  priceRow.style.display = (typeEl.value === 'market') ? 'none' : 'flex';
+});
+
+async function placeOrder(side) {
+  const payload = {
+    symbol: currentSymbol,
+    side: side,
+    type: typeEl.value,
+    volume: parseFloat(volEl.value),
+    price: priceEl.value ? parseFloat(priceEl.value) : undefined,
+    sl: slEl.value ? parseFloat(slEl.value) : undefined,
+    tp: tpEl.value ? parseFloat(tpEl.value) : undefined,
+  };
+  try {
+    const res = await fetch('/api/order', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    const data = await res.json();
+    if(data.error) return alert('Order error: ' + data.error);
+    await refreshPositions();
+    alert('Order placed');
+  } catch (e) {
+    alert('Order failed: ' + e.message);
+  }
+}
+
+btnBuy.addEventListener('click', ()=> placeOrder('buy'));
+btnSell.addEventListener('click', ()=> placeOrder('sell'));
+
+/* ---------- positions list & account ---------- */
+const positionsListEl = document.getElementById('positions-list');
+const accInfoEl = document.getElementById('acc-info');
+
+async function refreshPositions(){
+  try{
+    const [ordersRes, accRes] = await Promise.all([fetch('/api/orders'), fetch('/api/account')]);
+    const orders = await ordersRes.json();
+    const acc = await accRes.json();
+    // show account balance/equity
+    accInfoEl.textContent = `Balance: ${(+acc.balance).toFixed(2)}  Equity: ${(+acc.equity).toFixed(2)}`;
+    // show open positions
+    const open = orders.filter(o => o.status === 'open');
+    if(open.length === 0){
+      positionsListEl.innerHTML = '<div class="placeholder">No open positions</div>';
+    } else {
+      positionsListEl.innerHTML = '';
+      open.forEach(o=>{
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.justifyContent = 'space-between';
+        div.style.padding = '8px';
+        div.style.borderBottom = '1px solid var(--border)';
+        const price = o.currentPrice ? Number(o.currentPrice).toFixed(2) : '—';
+        const upnl = o.unrealizedPnl ? Number(o.unrealizedPnl).toFixed(2) : '0.00';
+        div.innerHTML = `<div><b>${o.symbol}</b> ${o.side.toUpperCase()} ${o.volume}<br/><span class="small">entry ${Number(o.entryPrice).toFixed(2)}  sl:${o.sl||'—'} tp:${o.tp||'—'}</span></div><div style="text-align:right"><div>${price}</div><div style="color:${o.unrealizedPnl>=0? '#58d68d':'#ff7b7b'}">${upnl}</div><button data-id="${o.id}" style="margin-top:6px">Close</button></div>`;
+        positionsListEl.appendChild(div);
+        div.querySelector('button').addEventListener('click', async ()=>{
+          const id = div.querySelector('button').dataset.id;
+          await fetch('/api/close', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id})});
+          await refreshPositions();
+        });
+      });
+    }
+  }catch(e){ console.warn(e); }
+}
+setInterval(refreshPositions, 3000);
+refreshPositions();
+
+/* ---------- timezone menu ---------- */
+const tzPresets = [
+  {label:'UTC−5 — New York', offset:-300},{label:'UTC+0 — London', offset:0},{label:'UTC+1 — Madrid', offset:60},{label:'UTC+2 — Helsinki', offset:120},{label:'UTC+3 — Qatar', offset:180},{label:'UTC+4 — Dubai', offset:240},{label:'UTC+7 — Bangkok', offset:420},{label:'UTC+8 — Singapore', offset:480},{label:'UTC+9 — Tokyo', offset:540},{label:'UTC+12 — Auckland', offset:720}
+];
+utcBtn.addEventListener('click', ()=>{
+  const menu = document.createElement('div');
+  menu.style.position='absolute'; menu.style.right='12px'; menu.style.bottom='44px'; menu.style.background='var(--panel-2)'; menu.style.border='1px solid var(--border)'; menu.style.padding='6px'; menu.style.borderRadius='8px'; menu.style.boxShadow='0 8px 20px rgba(0,0,0,0.6)'; menu.style.zIndex=2000;
+  tzPresets.forEach(tz=>{
+    const it = document.createElement('div'); it.textContent = tz.label; it.style.padding='6px 10px'; it.style.cursor='pointer'; it.style.color='var(--text)';
+    it.addEventListener('click', ()=>{ offsetMinutes = tz.offset; tzLabel = tz.label.split(' ')[0]; updateUtcDisplay(); updateTimeFormatter(); document.body.removeChild(menu); });
+    it.addEventListener('mouseover', ()=> it.style.background = 'var(--hover)'); it.addEventListener('mouseout', ()=> it.style.background = 'transparent');
+    menu.appendChild(it);
+  });
+  document.body.appendChild(menu);
+  const removeMenu = (ev)=>{ if(!menu.contains(ev.target) && ev.target !== utcBtn){ document.body.removeChild(menu); document.removeEventListener('click', removeMenu); } };
+  document.addEventListener('click', removeMenu);
+});
+
+/* expose debug */
+window._debug = { loadKlines, refreshPositions, latestPrices };
+</script>
+</body>
+</html>
+<script src="fix-timezone.js"></script>
+<script src="fix-orders-panel.js"></script>
+<script src="fix-hover-time-2.js"></script>

@@ -1,0 +1,21 @@
+[
+  {
+    "id": "o_1762443118088_5696",
+    "symbol": "BTCUSDT",
+    "side": "buy",
+    "type": "market",
+    "volume": 0.01,
+    "sl": 102350,
+    "tp": null,
+    "leverage": 1,
+    "status": "closed",
+    "createdAt": 1762443118088,
+    "entryPrice": 102360.33,
+    "entryTime": 1762443118088,
+    "requiredMargin": 1023.6033,
+    "closePrice": 102336.42,
+    "closeTime": 1762443124485,
+    "closeReason": "sl",
+    "pnl": 0
+  }
+]
