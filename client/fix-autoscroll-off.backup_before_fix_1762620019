@@ -5,10 +5,10 @@
     const ts = chart.timeScale();
     try {
       ts.options().autoScroll = false;
-    } catch(e){ console.warn('fix-autoscroll-off: autoScroll disable failed', e); }
+    } catch(e){}
     try {
       ts.scrollToRealTime = ()=>{}; // блокируем автопрыжок
-    } catch(e){ console.warn('fix-autoscroll-off: scrollToRealTime patch failed', e); }
+    } catch(e){}
     console.info('✅ fix-autoscroll-off active');
   });
 })();

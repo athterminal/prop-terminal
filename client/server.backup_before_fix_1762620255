@@ -1,6 +1,3 @@
-/* eslint-env node */
-/* global process, __dirname, console */
-
 const express = require('express');
 const path = require('path');
 
@@ -13,6 +10,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Frontend (plain) running on http://localhost:${PORT}`);
 });

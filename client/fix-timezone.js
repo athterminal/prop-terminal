@@ -3,8 +3,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const utcBtn = document.getElementById("utc-button");
   if (!utcBtn) return console.warn("[fix-timezone] UTC button not found");
-    utcBtn.addEventListener("click", openTzMenu);
-  });
+  utcBtn.addEventListener("click", openTzMenu);
 
 
   const tzPresets = [
@@ -157,16 +156,10 @@ document.addEventListener("DOMContentLoaded", () => {
   updateUtcDisplay();
   setInterval(updateUtcDisplay, 1000);
   if (window.chart) {
-if (window.chart && typeof chart.applyOptions === "function") {
-      if (window.chart && typeof window.chart.applyOptions === "function") {
-}
-if (window.chart && typeof chart.applyOptions === "function") {
-        window.chart.applyOptions({ localization: { timeFormatter: (t)=>window.formatCandleTime(t, window.currentInterval||"1h") } });
-}
+    if (window.chart && typeof window.chart.applyOptions === "function") {
+      window.chart.applyOptions({ localization: { timeFormatter: (t)=>window.formatCandleTime(t, window.currentInterval||"1h") } });
     } else {
-if (window.chart && typeof chart.applyOptions === "function") {
-        console.warn("⚠️ chart.applyOptions skipped — chart не инициализирован или не поддерживает метод");
-}
+      console.warn("⚠️ chart.applyOptions skipped — chart не инициализирован или не поддерживает метод");
     }
   }
 });

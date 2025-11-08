@@ -26,11 +26,8 @@
       try {
         timeScale.setVisibleRange({ from: r.from, to: r.to });
       } catch(e){
-        try {
-          timeScale.setVisibleRange(r);
-        } catch(e2){
-          console.warn('fix-hover-extend: setVisibleRange failed', e2);
-        }
+        // some versions expect objects or numbers, but we try best-effort
+        try { timeScale.setVisibleRange(r); } catch(e2) {}
       }
     }
 
@@ -38,26 +35,43 @@
       const rect = chartEl.getBoundingClientRect();
       const x = clientX - rect.left;
       const ratio = x / rect.width;
+      // порог — 0.88 (88% правой стороны)
       if (ratio < 0.88) {
-        if (restoring) return;
-        restoring = true;
-        setTimeout(() => restoring = false, 200);
-        if (originalRange) setVisible(originalRange);
+        // если уходили влево — восстановим (дебаунс)
+        if (originalRange && Date.now() - lastAction > 200) {
+          restoring = true;
+          setVisible(originalRange);
+          originalRange = null;
+        }
         return;
       }
 
-      const now = Date.now();
-      if (now - lastAction < 300) return;
-      lastAction = now;
-
       const vr = getVisible();
       if (!vr) return;
-      originalRange = vr;
-      const newTo = vr.to + 60;
+      // запоминаем оригинал только один раз
+      if (!originalRange) originalRange = { from: vr.from, to: vr.to };
+
+      const span = vr.to - vr.from;
+      const extraFactor = 0.6; // насколько расширяем (60% of span)
+      const newTo = vr.to + span * extraFactor * Math.min(3, (ratio - 0.88) * 5); // мягкое масштабирование по удалению
       setVisible({ from: vr.from, to: newTo });
+      lastAction = Date.now();
     }
 
-    chartEl.addEventListener('mousemove', (e) => expandIfNeeded(e.clientX));
-    console.info('✅ fix-hover-extend active');
+    // debounce wrapper
+    let timer = null;
+    chartEl.addEventListener('mousemove', (e) => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => expandIfNeeded(e.clientX), 40);
+    });
+
+    chartEl.addEventListener('mouseleave', () => {
+      if (originalRange) {
+        setVisible(originalRange);
+        originalRange = null;
+      }
+    });
+
+    console.info('✅ fix-hover-extend loaded — expands right timeScale near edge');
   });
 })();

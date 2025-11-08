@@ -54,7 +54,7 @@
         try {
           const t = timeScale().coordinateToTime && timeScale().coordinateToTime(x);
           if (t) return t;
-        } catch(e){ console.warn("fix-hover-time-2: coordinateToTime failed", e); }
+        } catch {}
         const vr = getVisibleRange();
         if (!vr) return null;
         const rectW = rect.width;
