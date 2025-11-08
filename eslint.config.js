@@ -1,1 +1,1 @@
-export default [{ files: ["fix-merged.js"], languageOptions: { globals: { window: "readonly", document: "readonly", console: "readonly", localStorage: "readonly", setInterval: "readonly" } } }];
+export default [{ files: ["**/*.js"], languageOptions: { globals: { window: "readonly", document: "readonly", console: "readonly", localStorage: "readonly", setInterval: "readonly", process: "readonly" } } }];
