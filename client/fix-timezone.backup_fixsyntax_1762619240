@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const utcBtn = document.getElementById("utc-button");
   if (!utcBtn) return console.warn("[fix-timezone] UTC button not found");
     utcBtn.addEventListener("click", openTzMenu);
-  });
+}
 
 
   const tzPresets = [

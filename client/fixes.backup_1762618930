@@ -4,7 +4,7 @@
 
   const updatePrice = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/prices');
+      const res = await fetch('https://api.binance.com/api/v3/ticker/price');
       const data = await res.json();
 
       symbols.forEach(sym => {
