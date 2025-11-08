@@ -1,3 +1,4 @@
+/* eslint-env browser */
 function formatCandleTime(tsSec, tf){
   const d = new Date((tsSec + offsetMinutes*60)*1000);
   const dayName = weekdays[d.getUTCDay()];

@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-timezone.js — новый аккуратный dropdown под кнопкой UTC
 (() => {
   const btn = document.getElementById('utc-button');

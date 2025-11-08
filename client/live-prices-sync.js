@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* ---------- LIVE PRICE SYNC (Positions, Quotes, Equity) ---------- */
 (() => {
   if (!window.ws) {

@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-timezone-persist.js — сохраняет выбранный UTC в localStorage и восстанавливает при загрузке
 (function(){
   document.addEventListener('DOMContentLoaded', () => {

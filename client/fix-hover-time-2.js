@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-hover-time-2.js — перемещена и стилизована как TradingView footer label
 (function(){
   document.addEventListener('DOMContentLoaded', () => {

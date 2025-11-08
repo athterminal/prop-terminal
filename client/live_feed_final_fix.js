@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* ---------- FINAL FIXED LIVE CANDLES (like TradingView) ---------- */
 let ws = null;
 let liveSymbol = currentSymbol.toLowerCase();

@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* ---------- LIVE PRICE PER SYMBOL + SIMPLE REFRESH EACH SECOND ---------- */
 (() => {
   const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'XRPUSDT', 'ADAUSDT'];

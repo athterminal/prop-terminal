@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* fix-timezone.js — step 6: apply timezone offset to button and chart */
 
 (function() {

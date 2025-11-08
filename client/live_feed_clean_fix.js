@@ -1,3 +1,4 @@
+/* eslint-env browser */
 document.addEventListener("DOMContentLoaded",()=>{
   if(typeof chart==="undefined"||typeof candleSeries==="undefined")return;
   let ws=null;

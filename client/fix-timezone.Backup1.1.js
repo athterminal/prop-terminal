@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* fix-timezone.js — final merged: TradingView-style labels + robust UTC dropdown (capture clicks, Esc, resize) */
 
 document.addEventListener("DOMContentLoaded", () => {

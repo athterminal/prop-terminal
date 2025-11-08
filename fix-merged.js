@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* fix-timezone.js — merged version: sync timezone + correct TradingView-style labels */
 
 (function(){

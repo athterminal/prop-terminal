@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-hover-extend.js — аккуратно расширяет timeScale при наведении у правого края
 (function(){
   document.addEventListener('DOMContentLoaded', () => {

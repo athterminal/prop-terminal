@@ -1,3 +1,4 @@
+/* eslint-env browser */
 function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("server");

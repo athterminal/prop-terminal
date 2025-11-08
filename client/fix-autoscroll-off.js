@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-autoscroll-off.js — отключает автопрыжок к последним свечам
 (function(){
   document.addEventListener('DOMContentLoaded', ()=>{

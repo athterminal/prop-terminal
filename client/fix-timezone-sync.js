@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-timezone-sync.js — обновляет форматирование времени при смене UTC
 (function(){
   document.addEventListener('DOMContentLoaded', () => {

@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-orders-panel.js — надёжный переключатель Market / Limit + поле Price
 document.addEventListener('DOMContentLoaded', () => {
   let marketTab = document.querySelector('.trade-tab[data-tab="market"]');

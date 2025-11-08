@@ -1,3 +1,5 @@
+/* eslint-env browser */
+/* eslint-env browser */
 /* fix-timezone.js — merged version: sync timezone + correct TradingView-style labels */
 
 (function(){
@@ -20,7 +22,6 @@
   window.offsetMinutes = parseInt(localStorage.getItem('tzOffset') || '0', 10);
   window.tzLabel = localStorage.getItem('tzLabel') || 'UTC+0';
 
-  const weekdays = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
   const months = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
   const pad = n => String(n).padStart(2,'0');
 
@@ -38,7 +39,6 @@
   // формат TradingView
   window.formatCandleTime = function(tsSec, tf){
     const d = shiftedDateFromSec(tsSec);
-    const dow = weekdays[d.getUTCDay()];
     const day = pad(d.getUTCDate());
     const month = months[d.getUTCMonth()];
     const year = d.getUTCFullYear();

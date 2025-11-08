@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-format-time.js — форматирование дат для разных таймфреймов
 (function(){
   document.addEventListener('DOMContentLoaded', () => {

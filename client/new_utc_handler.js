@@ -1,3 +1,4 @@
+/* eslint-env browser */
 utcBtn.addEventListener('click', () => {
   // удаляем возможное старое меню прежде чем создать новое
   const existing = document.getElementById('utc-presets-menu');

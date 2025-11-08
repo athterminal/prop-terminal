@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* fix-timezone.js — step: strict timeframe formatting with timezone offset */
 
 (function(){

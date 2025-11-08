@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* ---------- ADVANCED LIVE CANDLES (dynamic every tick) ---------- */
 let ws = null;
 let liveSymbol = currentSymbol.toLowerCase();

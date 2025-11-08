@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-autoscroll-final.js — отключает auto-scroll при поступлении новых данных
 (function(){
   document.addEventListener('DOMContentLoaded', ()=>{

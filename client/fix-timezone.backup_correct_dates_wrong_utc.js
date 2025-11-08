@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* fix-timezone.js — step: strict timeframe formatting with timezone offset */
 
 (function(){
@@ -130,7 +131,7 @@
   // обновление текста кнопки с учётом offset
   function updateUtcDisplay(){
     const d = shiftedNow();
-    utcBtn.textContent = \`\${pad(d.getUTCHours())}:\${pad(d.getUTCMinutes())}:\${pad(d.getUTCSeconds())} \${window.tzLabel}\`;
+    utcBtn.textContent = `\${pad(d.getUTCHours())}:\${pad(d.getUTCMinutes())}:\${pad(d.getUTCSeconds())} \${window.tzLabel}`;
   }
 
   function openMenuUp(){

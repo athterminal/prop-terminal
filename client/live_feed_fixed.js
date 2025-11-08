@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // --- LIVE FEED + FULLSCREEN FIX ---
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof chart === "undefined" || typeof candleSeries === "undefined") return;

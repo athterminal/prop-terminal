@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-timezone-sync-2.js — сохраняет смещение при смене таймфрейма
 (function(){
   document.addEventListener('DOMContentLoaded', ()=>{

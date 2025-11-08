@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* ---------- LIVE PRICES + SYNC WITH GRAPH ---------- */
 (() => {
   const pairs = ['BTCUSDT','ETHUSDT','BNBUSDT','XRPUSDT','ADAUSDT'];

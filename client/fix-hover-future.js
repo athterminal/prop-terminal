@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // fix-hover-future.js — расширяет плашку TradingView на будущее (правее свечей)
 (function() {
   document.addEventListener('DOMContentLoaded', () => {

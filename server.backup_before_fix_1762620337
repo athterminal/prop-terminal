@@ -24,7 +24,7 @@ app.use('/', express.static('client'));
 
 async function safeReadJSON(file, fallback){
   try { const s = await fs.readFile(file, 'utf8'); return JSON.parse(s); }
-  catch(e){ console.warn("safeReadJSON failed", e); return fallback; }
+  catch(e){ return fallback; }
 }
 async function safeWriteJSON(file, data){
   const tmp = file + '.tmp';
@@ -34,8 +34,8 @@ async function safeWriteJSON(file, data){
 
 // ensure files exist
 (async ()=>{
-  try { await fs.access(TRADES_FILE); } catch(e){ console.warn("TRADES_FILE not found", e); await safeWriteJSON(TRADES_FILE, []); }
-  try { await fs.access(ACCOUNT_FILE); } catch(e){ console.warn("ACCOUNT_FILE not found", e); await safeWriteJSON(ACCOUNT_FILE, { balance: 10000, equity: 10000, usedMargin: 0 }); }
+  try { await fs.access(TRADES_FILE); } catch(e){ await safeWriteJSON(TRADES_FILE, []); }
+  try { await fs.access(ACCOUNT_FILE); } catch(e){ await safeWriteJSON(ACCOUNT_FILE, { balance: 10000, equity: 10000, usedMargin: 0 }); }
 })();
 
 let orders = [];
@@ -84,7 +84,7 @@ async function fetchPrices(){
       if(!r.ok) continue;
       const d = await r.json();
       latestPrices[s] = parseFloat(d.price);
-    }catch(e){ console.warn("server.js: order processing error", e); }
+    }catch(e){}
   }
 }
 setInterval(fetchPrices, 2000);

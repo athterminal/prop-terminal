@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* fix-timezone.js — dropdown opens upward, aligned with UTC button */
 (function() {
   const utcBtn = document.getElementById('utc-button');
