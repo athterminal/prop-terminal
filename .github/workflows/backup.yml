@@ -1,0 +1,24 @@
+name: Repository Backup
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create archive
+        run: |
+          mkdir -p backups
+          tar -czf backups/prop-terminal_$(date +'%Y%m%d_%H%M%S').tar.gz .
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: prop-terminal_backup
+          path: backups/
+
