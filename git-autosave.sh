@@ -1,11 +1,7 @@
 #!/bin/bash
-
-cd ~/prop-terminal || exit
-
-# Текущие дата и время
+cd ~/Desktop/prop-terminal-clean || exit
 timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-
-# Добавляем, коммитим и пушим всё
+git pull --rebase origin main
 git add .
 git commit -m "autosave: $timestamp"
 git push origin main
