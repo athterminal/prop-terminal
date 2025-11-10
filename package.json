@@ -1,4 +1,4 @@
-{ "type": "module",
+{ "type": "commonjs",
   "name": "prop-terminal",
   "version": "1.0.0",
   "description": "CFD Terminal on Binance API",
