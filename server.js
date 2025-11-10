@@ -20,6 +20,10 @@ const ACCOUNT_FILE = path.join(DATA_DIR, 'account.json');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.get("/api/prices", (req, res) => {
+  res.json(latestPrices);
+});
+
 app.use('/', express.static('client'));
 
 async function safeReadJSON(file, fallback){

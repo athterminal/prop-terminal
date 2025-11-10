@@ -285,23 +285,15 @@ searchEl.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') renderInstList
 searchEl.addEventListener('input', ()=> renderInstList(searchEl.value.trim()));
 
 /* update prices in instrument list */
-function refreshPrices(){
-  document.querySelectorAll(".inst-row").forEach(async row => {
-    const sym = row.dataset.sym;
-    if(latestPrices[sym]) {
-      row.querySelector(".price").textContent = latestPrices[sym].toFixed(2);
-      return;
+async function refreshPrices(){
+  try {
+    const res = await fetch("/api/prices");
+    const data = await res.json();
+    for (const [sym, price] of Object.entries(data)) {
+      const row = document.querySelector(`.inst-row[data-sym="${sym}"]`);
+      if (row) row.querySelector(".price").textContent = parseFloat(price).toFixed(2);
     }
-    try {
-      const res = await fetch(`/api/history?symbol=${sym}&interval=1m&limit=1`);
-      const d = await res.json();
-      if(d.s === "ok" && d.candles?.length){
-        const last = d.candles.at(-1);
-        row.querySelector(".price").textContent = last.close.toFixed(2);
-        latestPrices[sym] = last.close;
-      }
-    }catch(e){}
-  });
+  } catch(e) { console.warn("refreshPrices error", e); }
 }
 refreshPrices();
 setInterval(refreshPrices, 1000);
