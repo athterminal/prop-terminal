@@ -252,7 +252,6 @@ fsBtn.addEventListener("click", ()=>{
 document.getElementById("logout-btn").addEventListener("click", ()=>{
   localStorage.removeItem("token");
   localStorage.removeItem("server");
-  window.location.href="login.html";
 });
 
 window.addEventListener('resize', ()=> setTimeout(()=>chart.resize(chartContainer.clientWidth, chartContainer.clientHeight),50));
