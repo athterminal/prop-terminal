@@ -1,0 +1,14 @@
+async function refreshPrices(){
+  try {
+    if (refreshController) refreshController.abort(); refreshController = new AbortController(); const res = await fetch("/api/prices", { signal: refreshController.signal });
+    const data = await res.json();
+    const activeSymbolEl = document.querySelector('.inst-row.active');
+    const activeSymbol = activeSymbolEl ? activeSymbolEl.dataset.sym : null;
+      const row = document.querySelector(`.inst-row[data-sym="${sym}"]`);
+      if(sym === activeSymbol) continue;
+      if (row && row.dataset.sym === sym) row.querySelector(".price").textContent = parseFloat(price).toFixed(2);
+    }
+  } catch(e) { console.warn("refreshPrices error", e); }
+}
+refreshPrices();
+setInterval(refreshPrices, 2000);
